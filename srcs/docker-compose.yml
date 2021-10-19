@@ -1,0 +1,74 @@
+version: "3.9"
+
+services:
+
+  wordpress:
+    container_name: wordpress
+    build: ./requirements/wordpress
+#    image: wordpress:5.5-fpm-alpine
+    ports:
+      - 9000:9000
+    volumes:
+      - ./requirements/wordpress/tools:/docker-entrypoint.d
+#      - ./requirements/wordpress/wp-content:/var/www/html/wp-content
+#      - ./requirements/databases/wordpress:/var/www/wordpress
+#      - ./requirements/wordpress/conf:/var/www/wordpress
+#      - ./requirements/wordpress/conf/www.conf:/etc/php7/php-fpm.d/www.conf
+#    command: sh /docker-entrypoint.d/start.sh
+    env_file: .env
+    environment:
+      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+    restart: always
+    networks:
+      - inception
+    depends_on:
+      - mariadb
+
+  mariadb:
+    container_name: mariadb
+    build: ./requirements/mariadb
+    ports:
+      - 3306:3306
+    env_file: .env
+    volumes:
+      - ./requirements/mariadb/tools:/docker-entrypoint-initdb.d
+      - ./requirements/databases/db_data:/var/lib/mysql
+    command: sh /docker-entrypoint-initdb.d/start.sh
+    restart: always
+    networks:
+      - inception
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - inception
+
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx
+    restart: always
+    depends_on:
+      - wordpress
+    volumes:
+      - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
+#      - ./requirements/databases/wordpress:/var/www/wordpress
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - inception
+
+
+volumes:
+  db_data:
+  wordpress:
+
+networks:
+  inception:
+    driver: bridge
