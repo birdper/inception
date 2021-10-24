@@ -4,13 +4,15 @@ services:
 
   wordpress:
     container_name: wordpress
-#    build: ./requirements/wordpress
-    image: wordpress:5.5-fpm-alpine
-#    ports:
-#      - 9000:9000
+    build: ./requirements/wordpress
+#    image: wordpress:5.5-fpm-alpine
+    ports:
+      - 9000:9000
     volumes:
-      - ./requirements/wordpress/tools:/docker-entrypoint.d
-      - ./html:/var/www/html
+      - wp_db:/var/www/html/wordpress
+
+    #      - ./requirements/wordpress/tools:/docker-entrypoint.d
+#      - ./html:/var/www/html
 #      - ./requirements/wordpress/conf/www.conf:/etc/php7/php-fpm.d/www.conf
     env_file: .env
     environment:
@@ -21,21 +23,26 @@ services:
     restart: always
     depends_on:
       - mariadb
+    networks:
+      - web
 
   mariadb:
     container_name: mariadb
     build: ./requirements/mariadb
-#    ports:
-#      - 3306:3306
+    ports:
+      - 3306:3306
     env_file: .env
     volumes:
-      - ./requirements/mariadb/tools:/docker-entrypoint-initdb.d
-      - ./requirements/databases/db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql
     restart: always
+    networks:
+      - web
 
   adminer:
     image: adminer
     restart: always
+    networks:
+      - web
 #    ports:
 #      - 8080:8080
 
@@ -46,17 +53,31 @@ services:
     depends_on:
       - wordpress
     volumes:
-      - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
-      - ./html:/var/www/html
+      - wp_db:/var/www/html/wordpress
+#      - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
     ports:
       - 80:80
       - 443:443
+    networks:
+      - web
 
 
 volumes:
   db_data:
-  html:
+#    driver_opts:
+#      type: 'none'
+#      device: "/Users/nbirdper/Documents/21/05/Inception/srcs/requirements/db_data"
+#      o: 'bind'
+  wp_db:
+    driver_opts:
+      type: 'none'
+      device: "/Users/nbirdper/Documents/21/05/Inception/srcs/requirements/wp_db"
+      o: 'bind'
 
-#networks:
-#  inception:
+#TODO: HOME/nbirdper/data/wp
+#TODO: HOME/nbirdper/data/db
+
+networks:
+  web:
+    name: 'web'
 #    driver: bridge

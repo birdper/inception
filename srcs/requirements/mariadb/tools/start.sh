@@ -18,6 +18,8 @@ mysql -e "CREATE DATABASE wordpress_db ;"
 mysql -e "CREATE USER 'admin'@'%' IDENTIFIED BY '1234';"
 mysql -e "GRANT ALL PRIVILEGES ON wordpress_db.* TO 'admin'@'%';"
 mysql -e "FLUSH PRIVILEGES;"
+
+
 #mysql ENTRYPOINT ["docker-entrypoint.sh"]${MYSQL_DATABASE} < wordpress.sql
 
 rc-service mariadb stop
