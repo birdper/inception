@@ -30,7 +30,8 @@ RUN apk add php${PHP_VERSION} php-fpm php-mysqli mariadb-client
 #	php-bz2 \
 #    php-pdo_dblib \
 
-WORKDIR /var/www
+WORKDIR /var/www/html
+
 
 RUN wget https://wordpress.org/wordpress-${WORDPRESS_VERSION}.tar.gz
 
@@ -42,9 +43,9 @@ COPY ./conf/wp-config.php /var/www/wordpress
 
 RUN mkdir -p /run/php
 
-WORKDIR /var/www/html
 
 EXPOSE 9000
 
-ENTRYPOINT ["php-fpm7", "-F"]
+#ENTRYPOINT ["php-fpm7", "-F"]
+CMD ["php-fpm7", "--nodaemonize"]
 #CMD php-fpm7 -F
