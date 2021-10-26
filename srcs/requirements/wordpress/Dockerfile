@@ -39,24 +39,23 @@ RUN wget https://wordpress.org/wordpress-${WORDPRESS_VERSION}.tar.gz
 RUN tar -xvzf wordpress-${WORDPRESS_VERSION}.tar.gz \
     && rm -rf wordpress-${WORDPRESS_VERSION}.tar.gz
 
-#COPY ./conf/wp-config.php /var/www/html
-#RUN #chown /
-#COPY ./conf/www.conf /etc/php7/php-fpm.d/
-RUN mkdir -p /run/php
 
+COPY ./conf/wp-config.sh /tmp/
 
-RUN sed -i "s/'WP_DEBUG', false/'WP_DEBUG', 'true'/" ./wordpress/wp-config-sample.php
-RUN sed -i "s/database_name_here/wordpress_db/" ./wordpress/wp-config-sample.php
-RUN sed -i "s/username_here/admin/" ./wordpress/wp-config-sample.php
-RUN sed -i "s/password_here/1234/" ./wordpress/wp-config-sample.php
-RUN sed -i "s/localhost/mariadb/" ./wordpress/wp-config-sample.php && mv ./wordpress/wp-config-sample.php ./wordpress/wp-config.php
+RUN mkdir -p /run/php \
+    && chmod +x /tmp/wp-config.sh \
+    && /tmp/wp-config.sh
 
-
-
-RUN sed -i "s/127.0.0.1/wordpress/" /etc/php7/php-fpm.d/www.conf
+#RUN sed -i "s/'WP_DEBUG', false/'WP_DEBUG', 'true'/" ./wordpress/wp-config-sample.php
+#
+#RUN sed -i "s/database_name_here/wordpress_db/" ./wordpress/wp-config-sample.php
+#RUN sed -i "s/username_here/admin/" ./wordpress/wp-config-sample.php
+#RUN sed -i "s/password_here/1234/" ./wordpress/wp-config-sample.php
+#RUN sed -i "s/localhost/mariadb/" ./wordpress/wp-config-sample.php && mv ./wordpress/wp-config-sample.php ./wordpress/wp-config.php
+#
+#RUN sed -i "s/127.0.0.1/wordpress/" /etc/php7/php-fpm.d/www.conf
 
 EXPOSE 9000
 
 #ENTRYPOINT ["php-fpm7", "-F"]
 CMD ["php-fpm7", "--nodaemonize"]
-#CMD php-fpm7 -F

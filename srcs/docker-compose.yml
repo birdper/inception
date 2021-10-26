@@ -2,6 +2,20 @@ version: "3.9"
 
 services:
 
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx
+    restart: always
+    depends_on:
+      - wordpress
+    volumes:
+      - wd_db:/var/www/html/wordpress
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - web
+
   wordpress:
     container_name: wordpress
     build: ./requirements/wordpress
@@ -9,11 +23,7 @@ services:
     ports:
       - 9000:9000
     volumes:
-      - wp_db:/var/www/html/wordpress
-
-    #      - ./requirements/wordpress/tools:/docker-entrypoint.d
-#      - ./html:/var/www/html
-#      - ./requirements/wordpress/conf/www.conf:/etc/php7/php-fpm.d/www.conf
+      - wd_db:/var/www/html/wordpress
     env_file: .env
     environment:
       WORDPRESS_DB_HOST: mariadb
@@ -46,29 +56,18 @@ services:
 #    ports:
 #      - 8080:8080
 
-  nginx:
-    container_name: nginx
-    build: ./requirements/nginx
-    restart: always
-    depends_on:
-      - wordpress
-    volumes:
-      - wp_db:/var/www/html/wordpress
-#      - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
-    ports:
-      - 80:80
-      - 443:443
-    networks:
-      - web
+
 
 
 volumes:
   db_data:
-#    driver_opts:
-#      type: 'none'
-#      device: "/Users/nbirdper/Documents/21/05/Inception/srcs/requirements/db_data"
-#      o: 'bind'
-  wp_db:
+    driver: 'local'
+    driver_opts:
+      type: 'none'
+      device: "/Users/nbirdper/Documents/21/05/Inception/srcs/requirements/db_data"
+      o: 'bind'
+  wd_db:
+    driver: 'local'
     driver_opts:
       type: 'none'
       device: "/Users/nbirdper/Documents/21/05/Inception/srcs/requirements/wp_db"

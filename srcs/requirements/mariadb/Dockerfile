@@ -13,7 +13,3 @@ COPY ./tools/start.sh /docker-entrypoint-initdb.d/
 RUN /docker-entrypoint-initdb.d/start.sh
 
 CMD ["mysqld_safe", "--datadir=/var/lib/mysql"]
-#"--datadir=/var/lib/mysql"
-
-#CMD ["--datadir=/var/lib/mysql"]
-
