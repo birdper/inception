@@ -14,14 +14,14 @@ services:
       - 80:80
       - 443:443
     networks:
-      - web
+      - web-inception
 
   wordpress:
     container_name: wordpress
     build: ./requirements/wordpress
 #    image: wordpress:5.5-fpm-alpine
-    ports:
-      - 9000:9000
+    # ports:
+      # - 9000:9000
     volumes:
       - wd_db:/var/www/html/wordpress
     env_file: .env
@@ -34,49 +34,46 @@ services:
     depends_on:
       - mariadb
     networks:
-      - web
+      - web-inception
 
   mariadb:
     container_name: mariadb
     build: ./requirements/mariadb
-    ports:
-      - 3306:3306
+    expose:
+      - 3306
     env_file: .env
     volumes:
       - db_data:/var/lib/mysql
     restart: always
     networks:
-      - web
+      - web-inception
 
-  adminer:
-    image: adminer
-    restart: always
-    networks:
-      - web
-#    ports:
-#      - 8080:8080
-
-
-
+#  adminer:
+#    image: adminer
+#    restart: always
+#    networks:
+#      - web-inception
+##    ports:
+##      - 8080:8080
 
 volumes:
   db_data:
-    driver: 'local'
+    name: db_data
+    driver: local
     driver_opts:
-      type: 'none'
-      device: "/Users/nbirdper/Documents/21/05/Inception/srcs/requirements/db_data"
-      o: 'bind'
+      device: /Users/nbirdper/data/db_data
+      type: none
+      o: bind
   wd_db:
-    driver: 'local'
+    name: wp_db
+    driver: local
     driver_opts:
-      type: 'none'
-      device: "/Users/nbirdper/Documents/21/05/Inception/srcs/requirements/wp_db"
-      o: 'bind'
+      device: /Users/nbirdper/Documents/21/05/Inception/data/wp_db
+      type: none
+      o: bind
 
-#TODO: HOME/nbirdper/data/wp
-#TODO: HOME/nbirdper/data/db
 
 networks:
-  web:
-    name: 'web'
+  web-inception:
+    name: 'web-inception'
 #    driver: bridge
