@@ -9,7 +9,7 @@ services:
     depends_on:
       - wordpress
     volumes:
-      - wd_db:/var/www/html/wordpress
+      - wp_data:/var/www/html/wordpress
     ports:
       - 80:80
       - 443:443
@@ -23,7 +23,7 @@ services:
     # ports:
       # - 9000:9000
     volumes:
-      - wd_db:/var/www/html/wordpress
+      - wp_data:/var/www/html/wordpress
     env_file: .env
     environment:
       WORDPRESS_DB_HOST: mariadb
@@ -61,14 +61,14 @@ volumes:
     name: db_data
     driver: local
     driver_opts:
-      device: /Users/nbirdper/data/db_data
+      device: /home/nbirdper/data/db_data
       type: none
       o: bind
-  wd_db:
-    name: wp_db
+  wp_data:
+    name: wp_data
     driver: local
     driver_opts:
-      device: /Users/nbirdper/Documents/21/05/Inception/data/wp_db
+      device: /home/nbirdper/data/wp_data
       type: none
       o: bind
 
