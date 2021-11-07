@@ -1,10 +1,16 @@
-version: "3.9"
+version: '3.9'
 
 services:
 
   nginx:
     container_name: nginx
-    build: ./requirements/nginx
+    build: 
+      context: ./requirements/nginx
+      args:
+        - DOMAIN_NAME=${DOMAIN_NAME}
+        - CERTS_CRT=${CERTS_CRT}
+        - CERTS_KEY=${CERTS_KEY}
+    env_file: .env
     restart: always
     depends_on:
       - wordpress
@@ -18,43 +24,51 @@ services:
 
   wordpress:
     container_name: wordpress
-    build: ./requirements/wordpress
-#    image: wordpress:5.5-fpm-alpine
-    # ports:
-      # - 9000:9000
+    build: 
+      context: ./requirements/wordpress
+      args:
+        - WP_DEBUG=false
+        - WP_DB_HOST=mariadb
+        - WP_DB_NAME=${MYSQL_DATABASE}
+        - WP_DB_USER=${MYSQL_USER}
+        - WP_DB_PASSWORD=${MYSQL_PASSWORD}
+    env_file: .env
     volumes:
       - wp_data:/var/www/html/wordpress
-    env_file: .env
-    environment:
-      WORDPRESS_DB_HOST: mariadb
-      WORDPRESS_DB_USER: ${MYSQL_USER}
-      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
-      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
     restart: always
     depends_on:
       - mariadb
+    expose:
+      - 9000
     networks:
       - web-inception
 
   mariadb:
     container_name: mariadb
-    build: ./requirements/mariadb
-    expose:
-      - 3306
+    build: 
+      context: ./requirements/mariadb
+      args:
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
     env_file: .env
     volumes:
       - db_data:/var/lib/mysql
     restart: always
+    expose:
+      - 3306
     networks:
       - web-inception
+      
 
-#  adminer:
-#    image: adminer
-#    restart: always
-#    networks:
-#      - web-inception
-##    ports:
-##      - 8080:8080
+  adminer:
+    image: adminer
+    restart: always
+    networks:
+      - web-inception
+    ports:
+      - 8080:8080
 
 volumes:
   db_data:
@@ -76,4 +90,4 @@ volumes:
 networks:
   web-inception:
     name: 'web-inception'
-#    driver: bridge
+

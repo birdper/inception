@@ -1,18 +1,19 @@
+FROM    debian:buster
 
-FROM alpine:3.12.3
+RUN     apt-get update \
+        && apt-get install -y mariadb-server
 
-LABEL maintainer="nbirdper@student.21-school.ru"
-LABEL app="mariadb"
+ARG     MYSQL_DATABASE
+ARG     MYSQL_USER
+ARG     MYSQL_PASSWORD
+ARG     MYSQL_ROOT_PASSWORD
 
-RUN apk update
+COPY    /conf/wordpress.sql /wordpress.sql
+COPY    /tools/setup.sh /tmp/setup.sh
+RUN     chmod +x /tmp/setup.sh
 
-RUN apk add mariadb mariadb-client openrc
+COPY    /conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
-RUN mkdir -p /run/openrc && touch /run/openrc/softlevel
+RUN     /tmp/setup.sh
 
-COPY ./databases/dump_wp_db.sql /tmp/dump_wp_db.sql
-COPY ./tools/start.sh /tmp/start.sh
-RUN chmod +x /tmp/start.sh
-RUN /tmp/start.sh
-
-CMD ["mysqld_safe", "--datadir=/var/lib/mysql"]
+CMD     [ "mysqld", "-u", "root" ]
